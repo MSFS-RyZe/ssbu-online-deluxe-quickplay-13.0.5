@@ -168,7 +168,7 @@ unsafe fn css_player_pane_num_changed(param_1: i64, prev_num: i32, changed_by_pl
 
 #[skyline::hook(offset = 0x1a12f60)]
 unsafe fn update_css(arg: u64) {
-    if !is_scene_transition_active() {
+    if is_valid_online_mode() && !is_scene_transition_active() {
         let l1 = *((arg + 0xe58) as *const u64);
         let l2 = if l1 == 0 {
             0
