@@ -22,6 +22,7 @@ pub struct RenderConfig {
     render_profile_config: RenderProfileConfig,
     overclocker: bool,
     stealth_mode: bool,
+    lurk_mode: bool,
 }
 
 impl Default for RenderConfig {
@@ -30,12 +31,21 @@ impl Default for RenderConfig {
             render_profile_config: RenderProfileConfig::default(),
             overclocker: true,
             stealth_mode: false,
+            lurk_mode: false,
         }
     }
 }
 
 pub fn stealth_mode_enabled() -> bool {
     RENDER_CONFIG.load().stealth_mode
+}
+
+/// Lurk mode: don't broadcast our own data (no send hook), but keep the
+/// 0x45 beacon flowing so peers treat us as a capable station and share
+/// their extended info with us. stealth_mode takes precedence.
+pub fn lurk_mode_enabled() -> bool {
+    let rc = RENDER_CONFIG.load();
+    rc.lurk_mode && !rc.stealth_mode
 }
 
 #[no_mangle]

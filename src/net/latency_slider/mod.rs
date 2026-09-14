@@ -155,12 +155,18 @@ unsafe fn set_online_latency(ctx: &InlineCtx) {
     }
 
     let auto = *reg_ptr;
-    LAST_AUTO.store(auto as i8, Ordering::SeqCst);
     
     let buffer = LatencySliderManager::instance()
         .selected_latency
         .buffer
         .load(Ordering::SeqCst);
+
+    // Solo registrar el valor auto real del juego cuando NO estamos sobreescribiendo.
+    // Si estamos sobreescribiendo (buffer >= 0), el registro contiene nuestro valor
+    // manual del frame anterior, no el cálculo real del juego.
+    if buffer < 0 {
+        LAST_AUTO.store(auto as i8, Ordering::SeqCst);
+    }
         
     LatencySliderManager::instance()
         .active_latency

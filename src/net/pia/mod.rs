@@ -196,9 +196,11 @@ pub(super) fn install() {
     StationConnectionManager::register_station_connection_changed_callback(
         on_station_connection_changed,
     );
-    if !crate::render::stealth_mode_enabled() {
+    if !crate::render::stealth_mode_enabled() && !crate::render::lurk_mode_enabled() {
         StationConnectionManager::register_station_data_send_hook(send_pia_data_hook);
     }
+    // Only suppress the 0x45 beacon for full stealth — lurk_mode intentionally
+    // keeps the beacon flowing so peers treat us as a capable station.
     manager_stealth::arm();
     StationConnectionManager::register_station_data_received_hook(receive_pia_data_hook);
 

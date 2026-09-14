@@ -62,6 +62,18 @@ Enabling `stealth_mode = true` in `config.toml` provides complete privacy:
 - **Zero-Packet Broadcast**: Completely unhooks the custom PIA data sender (`send_pia_data_hook`).
 - **One-Way (Antisocial) Reception**: Your console remains completely silent and appears 100% vanilla to peers and Nintendo servers, yet you can still view opponents' ping, stability metrics, and profiles.
 
+> ⚠️ **Note**: Full stealth makes you "blind" to opponents' extended info (latency slider, render profile). The manager's 0x45 beacon doubles as a capability token — suppressing it causes peers to refuse sharing their extended data with you. If you want to see opponents' info while still hiding your own, use `lurk_mode` instead.
+
+#### Lurk Mode (Recommended Alternative)
+
+Setting `lurk_mode = true` (with `stealth_mode = false`) provides a middle ground:
+
+- **No Broadcast**: The custom PIA data send hook is NOT registered — your latency and render profile are never broadcast.
+- **Beacon Preserved**: The 0x45 beacon flows normally, so peers treat you as a capable station and **share their extended info with you** (latency slider, render profile, etc.).
+- **Trade-off**: Peers running the mod **can** see that you're modded and your `[Wired]`/`[Wifi]` interface type. However, they cannot see your latency slider or render profile.
+
+If both `stealth_mode` and `lurk_mode` are set to `true`, `stealth_mode` takes precedence (full stealth, accept being blind).
+
 ### 4. ⚡ Dynamic Resolution Scaling (Perf Scaler) in Quickplay
 The upstream mod intentionally exited early if Quickplay mode was active. This fork re-enables `sync_guest` dynamic resolution scaling across all online modes, ensuring rock-solid 60 FPS during heavy moves, critical-hit zoom-ins, and Sephiroth’s Gigaflare.
 
@@ -128,7 +140,15 @@ sd:/ultimate/ssbu_online_deluxe/config.toml
 # Enable Stealth Mode to conceal modded status from other players.
 # When true, you appear completely vanilla to opponents, but can
 # still view their telemetry.
-stealth_mode = true
+# NOTE: Full stealth makes you "blind" to opponents' extended info.
+stealth_mode = false
+
+# Enable Lurk Mode for a privacy middle-ground:
+# - Your latency/render profile is NOT broadcast to anyone.
+# - Peers CAN see you're modded and your [Wired]/[Wifi] type.
+# - You CAN see opponents' latency, render profile, etc.
+# stealth_mode takes precedence when both are true.
+lurk_mode = true
 
 # Built-in Switch Overclocker integration.
 # Set to 'false' if you use an external sysmodule (e.g., sys-clk)

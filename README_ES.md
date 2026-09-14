@@ -62,6 +62,18 @@ Activando `stealth_mode = true` en el `config.toml`:
 - **Cero Emisión de Paquetes**: Deshabilita el hook de transmisión de datos custom PIA (`send_pia_data_hook`), vaciando el buffer de salida.
 - **Recepción Unidireccional (Antisocial)**: No emites absolutamente nada, pero tu consola sigue recibiendo y mostrando el ping, estabilidad y perfiles de los rivales que no usen sigilo.
 
+> ⚠️ **Nota**: El sigilo completo te deja "ciego" a la info extendida de oponentes (slider de latencia, perfil de render). La baliza 0x45 del manager funciona como token de capacidad — al suprimirla, los peers rechazan compartir su info extendida contigo. Si quieres ver la info de los oponentes sin emitir la tuya, usa `lurk_mode`.
+
+#### Modo Lurk (Alternativa Recomendada)
+
+Configurando `lurk_mode = true` (con `stealth_mode = false`) se obtiene un punto intermedio:
+
+- **Sin Emisión**: El hook de envío de datos PIA custom NO se registra — tu latencia y perfil de render nunca se transmiten.
+- **Baliza Preservada**: La baliza 0x45 fluye normalmente, así que los peers te tratan como estación capaz y **comparten su info extendida contigo** (slider de latencia, perfil de render, etc.).
+- **Compromiso**: Los peers con el mod **pueden** ver que estás modificado y tu tipo de interfaz `[Wired]`/`[Wifi]`. Sin embargo, no pueden ver tu slider de latencia ni tu perfil de render.
+
+Si ambos `stealth_mode` y `lurk_mode` están en `true`, `stealth_mode` tiene prioridad (sigilo completo, aceptando quedarse ciego).
+
 ### 4. ⚡ Escalador de Rendimiento en Quickplay
 Se eliminó la restricción que desactivaba el escalador en Quickplay. La resolución dinámica ahora actúa durante los zoom-ins de golpes finales y movimientos pesados (como el Gigaflare de Sefirot), garantizando 60 FPS sin caídas de frames en el juego competitivo.
 
@@ -127,7 +139,15 @@ sd:/ultimate/ssbu_online_deluxe/config.toml
 
 # Activa el Modo Sigilo: te hace aparecer como consola Vanilla
 # ante otros jugadores y herramientas de detección.
-stealth_mode = true
+# NOTA: El sigilo completo te deja "ciego" a la info extendida de oponentes.
+stealth_mode = false
+
+# Activa el Modo Lurk para un punto intermedio de privacidad:
+# - Tu latencia/perfil de render NO se transmite a nadie.
+# - Los peers SÍ pueden ver que estás modificado y tu tipo [Wired]/[Wifi].
+# - TÚ SÍ puedes ver la latencia, perfil de render, etc. de los oponentes.
+# stealth_mode tiene prioridad cuando ambos están en true.
+lurk_mode = true
 
 # Overclock integrado de Switch.
 # Ponlo en 'false' si ya utilizas un sysmodule externo como sys-clk.
