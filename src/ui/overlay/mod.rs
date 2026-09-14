@@ -1,7 +1,7 @@
 use crate::{
     input_poll::InputSnapshot,
     net::{
-        is_in_valid_online_game, latency_slider::LatencySliderManager,
+        is_in_valid_online_game, is_valid_online_mode, latency_slider::LatencySliderManager,
         pia::StationExt,
     },
     render::profile::RenderProfileManager,
@@ -219,10 +219,8 @@ fn is_row_configurable(row: usize) -> bool {
 }
 
 fn poll_selected_setting(input_snapshot: &InputSnapshot) {
-    // Allow interaction whenever we're not in a live match — this lets the
-    // user configure delay/render from the Quickplay CSS even before
-    // MATCH_CONNECTION_STATUS has been set to OnlineQuickPlay.
-    if is_in_valid_online_game() {
+    let allow_interact = is_valid_online_mode() && !is_in_valid_online_game();
+    if !allow_interact {
         return;
     }
     match SELECTED_TABLE_ROW.load(Ordering::SeqCst) {
@@ -270,6 +268,7 @@ pub fn get_fixed_height(pos: f32, cur_disp_height: f32) -> f32 {
 }
 
 unsafe fn draw_interact_table(first_col_width: f32) {
+    let is_valid_online_mode = is_valid_online_mode();
     let stations = StationConnectionManager::get_connected_stations();
     if !igBeginTable(
         IMGUI_TABLE_ID.as_ptr() as _,
@@ -329,12 +328,14 @@ unsafe fn draw_interact_table(first_col_width: f32) {
         ROW_NET_LATENCY,
         IMGUI_INTERACT_TABLE_ROW_NAME_STRS[ROW_NET_LATENCY],
     );
-    {
+    if is_valid_online_mode {
         let latency = LatencySliderManager::instance()
             .active_latency()
             .unwrap_or_else(|| LatencySliderManager::instance().selected_latency());
         let slider_val = as_imgui_text(latency.to_string());
         draw_text_cell(&slider_val);
+    } else {
+        draw_empty_cell();
     }
     for station in stations.iter() {
         igTableNextColumn();
@@ -350,7 +351,7 @@ unsafe fn draw_interact_table(first_col_width: f32) {
         ROW_RENDER_PROFILE,
         IMGUI_INTERACT_TABLE_ROW_NAME_STRS[ROW_RENDER_PROFILE],
     );
-    {
+    if is_valid_online_mode {
         let rp = match is_in_valid_online_game() {
             true => RenderProfileManager::active_render_profile(),
             false => RenderProfileManager::instance().selected_render_profile(),
@@ -361,6 +362,8 @@ unsafe fn draw_interact_table(first_col_width: f32) {
         };
         let rp_disp = as_imgui_text(rp_str);
         draw_text_cell(&rp_disp);
+    } else {
+        draw_empty_cell();
     }
     for station in stations.iter() {
         igTableNextColumn();
